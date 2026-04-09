@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ⚔ SYSTEM: Arise — Full Stack Setup Guide
 *A Solo Leveling–inspired habit tracker RPG*
 
@@ -171,3 +172,7 @@ npm install
 ---
 
 *Arise, Hunter. The System awaits.*
+=======
+# System
+A digital habit tracker 
+>>>>>>> 1f2ac51e5a9249c95882a6a1f68a35284e844659
