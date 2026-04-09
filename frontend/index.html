@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYSTEM — Arise</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #030508;
+  --bg2: #060c14;
+  --bg3: #0a1220;
+  --surface: rgba(10,20,40,0.7);
+  --surface2: rgba(15,30,60,0.5);
+  --blue: #00b4ff;
+  --blue2: #0066cc;
+  --purple: #9b59ff;
+  --purple2: #6a0dad;
+  --cyan: #00ffea;
+  --gold: #ffd700;
+  --red: #ff3355;
+  --green: #00ff88;
+  --text: #c8d8f0;
+  --text2: #6a8ab0;
+  --border: rgba(0,180,255,0.15);
+  --border2: rgba(0,180,255,0.3);
+  --glow-blue: 0 0 20px rgba(0,180,255,0.4), 0 0 60px rgba(0,180,255,0.1);
+  --glow-purple: 0 0 20px rgba(155,89,255,0.5), 0 0 60px rgba(155,89,255,0.2);
+  --glow-gold: 0 0 20px rgba(255,215,0,0.5), 0 0 60px rgba(255,215,0,0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Rajdhani',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0,100,200,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(100,0,200,0.06) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(0,180,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,180,255,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--blue2);border-radius:2px;}
+.glass{background:var(--surface);border:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);}
+.glass2{background:var(--surface2);border:1px solid var(--border2);backdrop-filter:blur(10px);}
+.orb{font-family:'Orbitron',sans-serif;}
+.mono{font-family:'Share Tech Mono',monospace;}
+.neon-blue{color:var(--blue);text-shadow:0 0 10px rgba(0,180,255,0.8);}
+.neon-purple{color:var(--purple);text-shadow:0 0 10px rgba(155,89,255,0.8);}
+.neon-gold{color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,0.8);}
+.neon-cyan{color:var(--cyan);text-shadow:0 0 10px rgba(0,255,234,0.8);}
+.neon-green{color:var(--green);text-shadow:0 0 10px rgba(0,255,136,0.8);}
+.neon-red{color:var(--red);text-shadow:0 0 10px rgba(255,51,85,0.8);}
+.hidden{display:none!important;}
+
+@keyframes pulse-glow{0%,100%{opacity:1;}50%{opacity:0.5;}}
+@keyframes scan{0%{transform:translateY(-100%);}100%{transform:translateY(100vh);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes rank-up{0%{transform:scale(0.5);opacity:0;}60%{transform:scale(1.2);opacity:1;}100%{transform:scale(1);opacity:1;}}
+@keyframes slide-in{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes shimmer{0%{background-position:-200% center;}100%{background-position:200% center;}}
+@keyframes flicker{0%,100%{opacity:1;}92%{opacity:1;}93%{opacity:0.8;}94%{opacity:1;}96%{opacity:0.7;}97%{opacity:1;}}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+/* AUTH */
+#auth-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1000;background:var(--bg);}
+.auth-box{width:100%;max-width:460px;padding:48px 40px;border-radius:4px;position:relative;overflow:hidden;animation:slide-in 0.5s ease;}
+.auth-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg, transparent, var(--blue), var(--purple), transparent);}
+.auth-corner{position:absolute;width:20px;height:20px;border-color:var(--blue);border-style:solid;}
+.auth-corner.tl{top:8px;left:8px;border-width:2px 0 0 2px;}
+.auth-corner.tr{top:8px;right:8px;border-width:2px 2px 0 0;}
+.auth-corner.bl{bottom:8px;left:8px;border-width:0 0 2px 2px;}
+.auth-corner.br{bottom:8px;right:8px;border-width:0 2px 2px 0;}
+.system-logo{text-align:center;margin-bottom:8px;font-family:'Orbitron',sans-serif;font-size:40px;font-weight:900;letter-spacing:12px;background:linear-gradient(135deg, var(--blue), var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:flicker 5s infinite;}
+.system-sub{text-align:center;margin-bottom:36px;font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:4px;color:var(--text2);text-transform:uppercase;}
+.auth-tabs{display:flex;margin-bottom:28px;border-bottom:1px solid var(--border);}
+.auth-tab{flex:1;padding:10px;text-align:center;font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:all 0.3s;}
+.auth-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.auth-field{margin-bottom:20px;}
+.auth-field label{display:block;margin-bottom:8px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text2);font-family:'Orbitron',sans-serif;}
+.auth-field input{width:100%;padding:12px 16px;background:rgba(0,180,255,0.05);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;outline:none;transition:all 0.3s;}
+.auth-field input:focus{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue), var(--glow-blue);}
+.btn-primary{width:100%;padding:14px;background:linear-gradient(135deg, var(--blue2), var(--purple2));border:none;border-radius:2px;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:600;letter-spacing:3px;color:#fff;cursor:pointer;position:relative;overflow:hidden;transition:all 0.3s;text-transform:uppercase;}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);transform:translateX(-100%);transition:transform 0.5s;}
+.btn-primary:hover::before{transform:translateX(100%);}
+.btn-primary:hover{box-shadow:var(--glow-blue);}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed;}
+.btn-primary .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px;}
+.auth-error{color:var(--red);font-size:12px;letter-spacing:1px;margin-top:12px;text-align:center;min-height:16px;}
+.auth-success{color:var(--green);font-size:12px;letter-spacing:1px;margin-top:12px;text-align:center;min-height:16px;}
+
+/* APP */
+#app{position:relative;z-index:1;min-height:100vh;padding-bottom:40px;}
+.topbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:rgba(3,5,8,0.9);backdrop-filter:blur(20px);}
+.topbar-logo{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;letter-spacing:6px;background:linear-gradient(135deg, var(--blue), var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar-center{display:flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-size:14px;color:var(--text2);letter-spacing:2px;}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.player-name{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--blue);letter-spacing:2px;}
+.logout-btn{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--text2);background:none;border:1px solid var(--border);padding:6px 12px;border-radius:2px;cursor:pointer;transition:all 0.3s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.nav{display:flex;gap:4px;padding:16px 24px 0;border-bottom:1px solid var(--border);overflow-x:auto;}
+.nav-item{padding:10px 20px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;color:var(--text2);cursor:pointer;border-radius:2px 2px 0 0;border:1px solid transparent;border-bottom:none;white-space:nowrap;transition:all 0.3s;position:relative;}
+.nav-item::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:var(--bg);opacity:0;transition:opacity 0.3s;}
+.nav-item.active{color:var(--blue);border-color:var(--border);background:rgba(0,180,255,0.05);}
+.nav-item.active::after{opacity:1;}
+.nav-item:hover:not(.active){color:var(--text);background:rgba(255,255,255,0.02);}
+.content{padding:24px;max-width:1400px;margin:0 auto;}
+.page{display:none;animation:slide-in 0.4s ease;}
+.page.active{display:block;}
+
+/* PLAYER CARD */
+.player-card{padding:32px;border-radius:4px;position:relative;overflow:hidden;margin-bottom:24px;}
+.player-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg, var(--blue), var(--purple), var(--blue));background-size:200% auto;animation:shimmer 3s linear infinite;}
+.rank-badge{display:inline-flex;align-items:center;gap:8px;padding:4px 16px;border-radius:2px;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:16px;}
+.player-name-big{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;letter-spacing:4px;color:#fff;margin-bottom:4px;text-shadow:0 0 20px rgba(0,180,255,0.5);}
+.player-title{font-size:14px;letter-spacing:3px;color:var(--text2);margin-bottom:24px;}
+.xp-section{margin-bottom:8px;}
+.xp-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.xp-label span:first-child{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:3px;color:var(--text2);}
+.xp-numbers{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--blue);}
+.xp-bar{height:8px;background:rgba(0,180,255,0.1);border:1px solid rgba(0,180,255,0.2);border-radius:4px;overflow:hidden;position:relative;}
+.xp-fill{height:100%;background:linear-gradient(90deg, var(--blue2), var(--blue), var(--cyan));border-radius:4px;transition:width 1s cubic-bezier(0.4,0,0.2,1);position:relative;}
+.xp-fill::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(90deg, transparent, rgba(255,255,255,0.4));animation:pulse-glow 1.5s infinite;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;margin-top:20px;}
+.stat-chip{text-align:center;padding:12px 8px;background:rgba(0,180,255,0.05);border:1px solid var(--border);border-radius:2px;}
+.stat-chip-value{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;}
+.stat-chip-label{font-size:10px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+.panel{border-radius:4px;padding:24px;position:relative;overflow:hidden;margin-bottom:20px;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.panel-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;color:var(--blue);text-transform:uppercase;}
+.panel-tag{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;padding:4px 10px;border-radius:2px;background:rgba(0,180,255,0.1);border:1px solid var(--border);color:var(--text2);}
+
+/* QUESTS */
+.quest-item{display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:2px;border:1px solid var(--border);background:rgba(0,180,255,0.03);margin-bottom:8px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;}
+.quest-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blue);opacity:0;transition:opacity 0.3s;}
+.quest-item:hover{border-color:var(--border2);background:rgba(0,180,255,0.07);}
+.quest-item:hover::before{opacity:1;}
+.quest-item.completed{opacity:0.6;background:rgba(0,255,136,0.05);border-color:rgba(0,255,136,0.2);}
+.quest-item.completed::before{background:var(--green);opacity:1;}
+.quest-checkbox{width:22px;height:22px;flex-shrink:0;border:2px solid var(--border2);border-radius:2px;display:flex;align-items:center;justify-content:center;transition:all 0.3s;font-size:12px;}
+.quest-item.completed .quest-checkbox{background:var(--green);border-color:var(--green);color:#000;}
+.quest-info{flex:1;}
+.quest-name{font-size:15px;font-weight:600;letter-spacing:1px;margin-bottom:2px;}
+.quest-item.completed .quest-name{text-decoration:line-through;color:var(--text2);}
+.quest-meta{font-size:12px;color:var(--text2);letter-spacing:1px;}
+.quest-xp{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px;text-shadow:0 0 8px rgba(255,215,0,0.5);white-space:nowrap;}
+.quest-cat-badge{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1px;padding:2px 8px;border-radius:2px;white-space:nowrap;}
+.add-habit-form{padding:20px;border-radius:4px;border:1px dashed var(--border2);background:rgba(0,180,255,0.02);margin-bottom:20px;}
+.form-row{display:flex;gap:12px;flex-wrap:wrap;}
+.form-group{flex:1;min-width:180px;}
+.form-group label{display:block;margin-bottom:6px;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--text2);}
+.form-group input,.form-group select{width:100%;padding:10px 14px;background:rgba(0,180,255,0.05);border:1px solid var(--border);border-radius:2px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;transition:all 0.3s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--blue);box-shadow:0 0 0 1px rgba(0,180,255,0.3);}
+.form-group select option{background:#0a1220;}
+.btn-add{padding:10px 24px;background:rgba(0,180,255,0.1);border:1px solid var(--border2);border-radius:2px;font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:var(--blue);cursor:pointer;transition:all 0.3s;align-self:flex-end;}
+.btn-add:hover{background:rgba(0,180,255,0.2);box-shadow:var(--glow-blue);}
+.btn-danger{padding:6px 14px;background:rgba(255,51,85,0.1);border:1px solid rgba(255,51,85,0.2);border-radius:2px;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1px;color:var(--red);cursor:pointer;transition:all 0.3s;}
+.btn-danger:hover{background:rgba(255,51,85,0.2);}
+
+/* CALENDAR */
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-header{text-align:center;padding:8px 4px;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1px;color:var(--text2);}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:12px;border:1px solid transparent;cursor:pointer;transition:all 0.3s;position:relative;}
+.cal-day.empty{opacity:0;}
+.cal-day.today{border-color:var(--blue);color:var(--blue);}
+.cal-day.perfect{background:rgba(0,255,136,0.15);border-color:rgba(0,255,136,0.3);color:var(--green);}
+.cal-day.partial{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.2);color:var(--gold);}
+.cal-day.missed{background:rgba(255,51,85,0.08);border-color:rgba(255,51,85,0.15);color:var(--text2);}
+.cal-day.future{color:var(--text2);opacity:0.4;}
+.cal-day:hover:not(.empty):not(.future){transform:scale(1.1);}
+
+/* RANK */
+.rank-card{text-align:center;padding:32px;border-radius:4px;position:relative;overflow:hidden;}
+.rank-symbol{font-family:'Orbitron',sans-serif;font-size:80px;font-weight:900;line-height:1;margin-bottom:8px;animation:float 4s ease-in-out infinite;}
+.rank-name{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:6px;margin-bottom:4px;}
+.rank-desc{font-size:13px;color:var(--text2);letter-spacing:1px;}
+.rank-milestones{display:flex;justify-content:space-between;margin-top:20px;gap:8px;flex-wrap:wrap;}
+.milestone{flex:1;min-width:60px;text-align:center;padding:12px 8px;border-radius:2px;border:1px solid var(--border);background:rgba(0,180,255,0.03);}
+.milestone.achieved{border-color:rgba(0,255,136,0.3);background:rgba(0,255,136,0.05);}
+.milestone-rank{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.milestone-xp{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text2);}
+.chart-container{position:relative;height:280px;display:flex;align-items:center;justify-content:center;}
+
+/* NOTIFICATIONS */
+.notification-overlay{position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none;}
+.notification{padding:16px 20px;border-radius:4px;min-width:280px;max-width:360px;pointer-events:all;animation:slide-in 0.4s ease;position:relative;overflow:hidden;}
+.notif-title{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:3px;margin-bottom:4px;}
+.notif-body{font-size:13px;color:var(--text2);letter-spacing:0.5px;}
+.notif-xp{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;margin-top:4px;}
+
+/* LEVEL UP */
+#levelup-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);animation:slide-in 0.3s ease;}
+.levelup-box{text-align:center;padding:60px 80px;border-radius:4px;position:relative;overflow:hidden;border:1px solid var(--border2);background:rgba(6,12,20,0.95);backdrop-filter:blur(30px);animation:rank-up 0.6s cubic-bezier(0.34,1.56,0.64,1);}
+.levelup-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg, var(--purple), var(--blue), var(--cyan), var(--blue), var(--purple));background-size:300% auto;animation:shimmer 2s linear infinite;}
+.levelup-label{font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:5px;color:var(--text2);margin-bottom:16px;}
+.levelup-rank{font-family:'Orbitron',sans-serif;font-size:100px;font-weight:900;line-height:1;margin-bottom:16px;}
+.levelup-text{font-family:'Orbitron',sans-serif;font-size:24px;font-weight:700;letter-spacing:4px;margin-bottom:8px;}
+.levelup-sub{font-size:16px;color:var(--text2);letter-spacing:2px;}
+.levelup-close{margin-top:32px;padding:12px 32px;background:transparent;border:1px solid var(--blue);border-radius:2px;font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--blue);cursor:pointer;transition:all 0.3s;}
+.levelup-close:hover{background:rgba(0,180,255,0.1);box-shadow:var(--glow-blue);}
+
+/* PENALTY */
+.penalty-item{display:flex;align-items:center;gap:16px;padding:14px 16px;border-radius:2px;border:1px solid rgba(255,51,85,0.2);background:rgba(255,51,85,0.05);margin-bottom:8px;}
+.penalty-icon{font-size:18px;flex-shrink:0;}
+
+/* STREAK */
+.streak-display{display:flex;align-items:center;gap:12px;}
+.streak-number{font-family:'Orbitron',sans-serif;font-size:48px;font-weight:900;color:var(--gold);text-shadow:0 0 30px rgba(255,215,0,0.5);}
+.streak-flames{font-size:28px;}
+
+/* LOADING SCREEN */
+#loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:2000;flex-direction:column;gap:16px;}
+.loading-text{font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:4px;color:var(--text2);animation:pulse-glow 1s infinite;}
+.loading-spinner{width:40px;height:40px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;}
+
+@media(max-width:600px){.topbar{padding:10px 16px;}.content{padding:16px;}.player-card{padding:20px;}.auth-box{padding:32px 24px;margin:16px;}.grid-2,.grid-3{grid-template-columns:1fr;}.form-row{flex-direction:column;}.levelup-box{padding:40px 24px;}.levelup-rank{font-size:70px;}}
+@media(max-width:480px){.stats-grid{grid-template-columns:repeat(3,1fr);}.nav-item{padding:8px 12px;font-size:9px;}}
+.quests-scroll{max-height:500px;overflow-y:auto;padding-right:4px;}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text2);font-size:14px;letter-spacing:1px;}
+.empty-state-icon{font-size:40px;margin-bottom:16px;opacity:0.4;}
+.empty-state-title{font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:3px;margin-bottom:8px;color:var(--text2);}
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN (shown on initial load) -->
+<div id="loading-screen">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">INITIALIZING SYSTEM...</div>
+</div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="hidden">
+  <div class="auth-box glass">
+    <div class="auth-corner tl"></div><div class="auth-corner tr"></div>
+    <div class="auth-corner bl"></div><div class="auth-corner br"></div>
+    <div class="system-logo">SYSTEM</div>
+    <div class="system-sub">Arise, Hunter</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">LOGIN</div>
+      <div class="auth-tab" onclick="switchAuthTab('signup')">ARISE</div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="login-form">
+      <div class="auth-field">
+        <label>Email Address</label>
+        <input type="email" id="login-email" placeholder="hunter@example.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Access Code</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" id="login-btn" onclick="login()">ENTER THE SYSTEM</button>
+      <div class="auth-error" id="login-error"></div>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signup-form" class="hidden">
+      <div class="auth-field">
+        <label>Hunter Name</label>
+        <input type="text" id="signup-user" placeholder="Choose your hunter name" autocomplete="username">
+      </div>
+      <div class="auth-field">
+        <label>Email Address</label>
+        <input type="email" id="signup-email" placeholder="hunter@example.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Access Code</label>
+        <input type="password" id="signup-pass" placeholder="Min 6 characters" autocomplete="new-password">
+      </div>
+      <button class="btn-primary" id="signup-btn" onclick="signup()">ARISE</button>
+      <div class="auth-error" id="signup-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+  <div class="topbar">
+    <div class="topbar-logo">SYSTEM</div>
+    <div class="topbar-center">
+      <span id="tb-rank" class="neon-purple mono" style="font-size:12px;">E-RANK</span>
+      <span style="color:var(--border2);">|</span>
+      <span id="tb-xp" class="mono" style="font-size:12px;">0 XP</span>
+    </div>
+    <div class="topbar-right">
+      <span class="player-name" id="tb-name">HUNTER</span>
+      <button class="logout-btn" onclick="logout()">LOG OUT</button>
+    </div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-item active" onclick="showPage('dashboard')">⚔ DASHBOARD</div>
+    <div class="nav-item" onclick="showPage('quests')">📋 DAILY QUESTS</div>
+    <div class="nav-item" onclick="showPage('stats')">📊 PLAYER STATS</div>
+    <div class="nav-item" onclick="showPage('ranking')">🏆 RANKING</div>
+    <div class="nav-item" onclick="showPage('calendar')">📅 LOG</div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="player-card glass">
+        <div id="dash-rank-badge" class="rank-badge" style="background:rgba(155,89,255,0.1);border:1px solid rgba(155,89,255,0.3);">
+          <span class="neon-purple orb" style="font-size:13px;font-weight:900;">E</span>
+          <span style="font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:3px;color:var(--text2);">E-RANK HUNTER</span>
+        </div>
+        <div class="player-name-big" id="dash-name">HUNTER</div>
+        <div class="player-title" id="dash-title">Ordinary Human · Initiate</div>
+        <div class="xp-section">
+          <div class="xp-label">
+            <span>EXPERIENCE POINTS</span>
+            <span class="xp-numbers" id="dash-xp-text">0 / 500 XP</span>
+          </div>
+          <div class="xp-bar"><div class="xp-fill" id="dash-xp-fill" style="width:0%"></div></div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-chip"><div class="stat-chip-value neon-blue" id="dash-total-xp">0</div><div class="stat-chip-label">Total XP</div></div>
+          <div class="stat-chip"><div class="stat-chip-value neon-gold" id="dash-streak">0</div><div class="stat-chip-label">Day Streak</div></div>
+          <div class="stat-chip"><div class="stat-chip-value neon-green" id="dash-completed">0</div><div class="stat-chip-label">Quests Done</div></div>
+          <div class="stat-chip"><div class="stat-chip-value neon-purple" id="dash-habits">0</div><div class="stat-chip-label">Active Habits</div></div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="panel glass">
+          <div class="panel-header">
+            <span class="panel-title">⚔ Today's Quests</span>
+            <span class="panel-tag" id="dash-quest-count">0/0</span>
+          </div>
+          <div id="dash-quests-preview"></div>
+          <button class="btn-add" style="width:100%;margin-top:12px;" onclick="showPage('quests')">VIEW ALL QUESTS →</button>
+        </div>
+        <div>
+          <div class="panel glass" style="margin-bottom:20px;">
+            <div class="panel-header"><span class="panel-title">🔥 Streak</span></div>
+            <div class="streak-display">
+              <div class="streak-number" id="streak-big">0</div>
+              <div>
+                <div class="streak-flames" id="streak-flames">—</div>
+                <div style="font-size:13px;color:var(--text2);letter-spacing:1px;margin-top:4px;">CONSECUTIVE DAYS</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel glass">
+            <div class="panel-header"><span class="panel-title neon-red">⚠ Penalty Quests</span></div>
+            <div id="penalty-list">
+              <div class="empty-state" style="padding:20px;">
+                <div style="font-size:13px;color:var(--green);">No penalties active. Well done, Hunter.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTS -->
+    <div id="page-quests" class="page">
+      <div class="panel glass">
+        <div class="panel-header"><span class="panel-title">⚔ Add New Quest</span></div>
+        <div class="add-habit-form">
+          <div class="form-row">
+            <div class="form-group" style="flex:2;">
+              <label>Quest Name</label>
+              <input type="text" id="habit-name" placeholder="e.g. Strength Training · 100 Push-ups">
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="habit-cat">
+                <option value="strength">⚔ Strength</option>
+                <option value="agility">💨 Agility</option>
+                <option value="intelligence">🧠 Intelligence</option>
+                <option value="vitality">❤ Vitality</option>
+                <option value="mana">✨ Mana</option>
+                <option value="endurance">🛡 Endurance</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>XP Reward</label>
+              <select id="habit-xp">
+                <option value="25">25 XP · Easy</option>
+                <option value="50" selected>50 XP · Normal</option>
+                <option value="100">100 XP · Hard</option>
+                <option value="200">200 XP · Legendary</option>
+              </select>
+            </div>
+            <button class="btn-add" onclick="addHabit()">+ ADD QUEST</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel glass">
+        <div class="panel-header">
+          <span class="panel-title">📋 Daily Quests</span>
+          <span class="panel-tag" id="quest-page-count">0/0 Complete</span>
+        </div>
+        <div class="quests-scroll" id="quests-list"></div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div id="page-stats" class="page">
+      <div class="grid-2">
+        <div class="panel glass">
+          <div class="panel-header"><span class="panel-title">📊 Player Stats Radar</span></div>
+          <div class="chart-container"><canvas id="radar-chart"></canvas></div>
+        </div>
+        <div class="panel glass">
+          <div class="panel-header"><span class="panel-title">📈 XP History</span></div>
+          <div class="chart-container"><canvas id="xp-chart"></canvas></div>
+        </div>
+      </div>
+      <div class="panel glass">
+        <div class="panel-header"><span class="panel-title">⚡ Stat Details</span></div>
+        <div id="stat-details-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;"></div>
+      </div>
+    </div>
+
+    <!-- RANKING -->
+    <div id="page-ranking" class="page">
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="rank-card glass">
+          <div class="panel-header"><span class="panel-title">🏆 Current Rank</span></div>
+          <div class="rank-symbol" id="rank-symbol">E</div>
+          <div class="rank-name" id="rank-name">E-RANK</div>
+          <div class="rank-desc" id="rank-desc">Ordinary Human</div>
+          <div style="margin-top:20px;">
+            <div class="xp-label">
+              <span style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--text2);">PROGRESS TO NEXT RANK</span>
+              <span class="xp-numbers" id="rank-xp-text">0 / 500</span>
+            </div>
+            <div class="xp-bar" style="height:12px;margin-top:8px;"><div class="xp-fill" id="rank-xp-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="panel glass">
+          <div class="panel-header"><span class="panel-title">🎯 Rank Milestones</span></div>
+          <div class="rank-milestones" id="rank-milestones"></div>
+        </div>
+      </div>
+      <div class="panel glass">
+        <div class="panel-header"><span class="panel-title">📜 System Log</span></div>
+        <div id="system-log" style="max-height:300px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="page-calendar" class="page">
+      <div class="panel glass">
+        <div class="panel-header">
+          <span class="panel-title" id="cal-month-label">APRIL 2025</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-add" style="padding:6px 12px;" onclick="changeMonth(-1)">‹ PREV</button>
+            <button class="btn-add" style="padding:6px 12px;" onclick="changeMonth(1)">NEXT ›</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="cal-headers"></div>
+        <div class="calendar-grid" id="cal-days" style="margin-top:8px;"></div>
+        <div style="display:flex;gap:20px;margin-top:20px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);">
+            <div style="width:12px;height:12px;background:rgba(0,255,136,0.2);border:1px solid rgba(0,255,136,0.4);border-radius:2px;"></div> All Complete
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);">
+            <div style="width:12px;height:12px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:2px;"></div> Partial
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);">
+            <div style="width:12px;height:12px;background:rgba(255,51,85,0.08);border:1px solid rgba(255,51,85,0.2);border-radius:2px;"></div> Missed
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div class="notification-overlay" id="notif-area"></div>
+
+<!-- LEVEL UP OVERLAY -->
+<div id="levelup-overlay" class="hidden">
+  <div class="levelup-box">
+    <div class="levelup-label">SYSTEM NOTIFICATION</div>
+    <div class="levelup-rank" id="lu-rank">D</div>
+    <div class="levelup-text">RANK UP!</div>
+    <div class="levelup-sub" id="lu-desc">You have ascended</div>
+    <button class="levelup-close" onclick="closeLevelUp()">ACKNOWLEDGE · ARISE</button>
+  </div>
+</div>
+
+<script>
+// =============================================
+// CONFIGURATION — Change this to your backend URL
+// =============================================
+const API_BASE = 'http://localhost:3000/api';
+
+// =============================================
+// STATE
+// =============================================
+let currentUser  = null;   // { id, email, hunterName }
+let authToken    = null;
+let state        = {};
+let radarChart   = null;
+let xpChart      = null;
+let calMonth     = new Date().getMonth();
+let calYear      = new Date().getFullYear();
+let saveTimeout  = null;   // For debounced saving
+
+const RANKS = [
+  {rank:'E', name:'E-RANK', title:'Ordinary Human · Initiate',        xpNeeded:500,      color:'#9b59ff', glow:'rgba(155,89,255,0.5)'},
+  {rank:'D', name:'D-RANK', title:'Gate Surveyor · Awakened',         xpNeeded:1500,     color:'#00b4ff', glow:'rgba(0,180,255,0.5)'},
+  {rank:'C', name:'C-RANK', title:'Gate Raider · Hunter',             xpNeeded:3500,     color:'#00ffea', glow:'rgba(0,255,234,0.5)'},
+  {rank:'B', name:'B-RANK', title:'Elite Hunter · Slayer',            xpNeeded:7000,     color:'#00ff88', glow:'rgba(0,255,136,0.5)'},
+  {rank:'A', name:'A-RANK', title:'National Level Hunter',            xpNeeded:15000,    color:'#ffd700', glow:'rgba(255,215,0,0.5)'},
+  {rank:'S', name:'S-RANK', title:'Shadow Monarch · The Strongest',   xpNeeded:Infinity, color:'#ff3355', glow:'rgba(255,51,85,0.5)'},
+];
+
+const CATS = {
+  strength:    {label:'Strength',    emoji:'⚔', color:'#ff3355', bg:'rgba(255,51,85,0.1)',   border:'rgba(255,51,85,0.3)'},
+  agility:     {label:'Agility',     emoji:'💨', color:'#00ffea', bg:'rgba(0,255,234,0.1)',   border:'rgba(0,255,234,0.3)'},
+  intelligence:{label:'Intelligence',emoji:'🧠', color:'#9b59ff', bg:'rgba(155,89,255,0.1)', border:'rgba(155,89,255,0.3)'},
+  vitality:    {label:'Vitality',    emoji:'❤',  color:'#ff8c00', bg:'rgba(255,140,0,0.1)',   border:'rgba(255,140,0,0.3)'},
+  mana:        {label:'Mana',        emoji:'✨', color:'#00b4ff', bg:'rgba(0,180,255,0.1)',   border:'rgba(0,180,255,0.3)'},
+  endurance:   {label:'Endurance',   emoji:'🛡', color:'#00ff88', bg:'rgba(0,255,136,0.1)',   border:'rgba(0,255,136,0.3)'},
+};
+
+const PENALTY_TYPES = [
+  {title:'PENALTY QUEST',    desc:'Complete 20 extra reps today',  xpCost:25},
+  {title:'SYSTEM PUNISHMENT',desc:'Hold plank for 2 minutes',      xpCost:50},
+  {title:'DEBT REPAYMENT',   desc:'10-minute meditation required',  xpCost:30},
+];
+
+// =============================================
+// API HELPERS
+// =============================================
+async function apiCall(endpoint, method='GET', body=null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+  if (body)      opts.body = JSON.stringify(body);
+
+  const res  = await fetch(API_BASE + endpoint, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+// Debounced save — waits 1.5s after last change before saving
+function saveState() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    try {
+      await apiCall('/data', 'POST', state);
+    } catch (err) {
+      console.warn('[SAVE ERROR]', err.message);
+    }
+  }, 1500);
+}
+
+function todayKey() { return new Date().toISOString().split('T')[0]; }
+
+// =============================================
+// AUTH
+// =============================================
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='signup'));
+  });
+  document.getElementById('login-form').classList.toggle('hidden', tab!=='login');
+  document.getElementById('signup-form').classList.toggle('hidden', tab!=='signup');
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('signup-error').textContent = '';
+}
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const err   = document.getElementById('login-error');
+  const btn   = document.getElementById('login-btn');
+
+  if (!email || !pass) { err.textContent = '[ERROR] All fields are required.'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>CONNECTING...';
+  err.textContent = '';
+
+  try {
+    const data = await apiCall('/auth/login', 'POST', { email, password: pass });
+    authToken   = data.token;
+    currentUser = data.user;
+    localStorage.setItem('system_token', authToken);
+
+    // Load game state from server
+    state = await apiCall('/data');
+    checkStreak();
+    enterSystem();
+  } catch (e) {
+    err.textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'ENTER THE SYSTEM';
+  }
+}
+
+async function signup() {
+  const name  = document.getElementById('signup-user').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pass  = document.getElementById('signup-pass').value;
+  const err   = document.getElementById('signup-error');
+  const btn   = document.getElementById('signup-btn');
+
+  if (!name || !email || !pass) { err.textContent = '[ERROR] All fields are required.'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>AWAKENING...';
+  err.textContent = '';
+
+  try {
+    const data = await apiCall('/auth/signup', 'POST', { hunterName: name, email, password: pass });
+    authToken   = data.token;
+    currentUser = data.user;
+    localStorage.setItem('system_token', authToken);
+
+    // Load initial game state
+    state = await apiCall('/data');
+    enterSystem();
+  } catch (e) {
+    err.textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'ARISE';
+  }
+}
+
+function logout() {
+  // Force-save immediately before logout
+  clearTimeout(saveTimeout);
+  if (currentUser) apiCall('/data', 'POST', state).catch(()=>{});
+
+  authToken   = null;
+  currentUser = null;
+  state       = {};
+  localStorage.removeItem('system_token');
+
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+  if (radarChart) { radarChart.destroy(); radarChart = null; }
+  if (xpChart)    { xpChart.destroy();    xpChart    = null; }
+}
+
+function enterSystem() {
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('tb-name').textContent = currentUser.hunterName;
+  updateAll();
+  showPage('dashboard');
+  notify('SYSTEM ONLINE', 'Welcome back, Hunter ' + currentUser.hunterName, '#9b59ff', 'rgba(155,89,255,0.15)');
+}
+
+// =============================================
+// STREAK
+// =============================================
+function checkStreak() {
+  const today = todayKey();
+  if (state.lastActive === today) return;
+  if (state.lastActive) {
+    const last = new Date(state.lastActive);
+    const now  = new Date(today);
+    const diff = (now - last) / (1000 * 60 * 60 * 24);
+    if (diff === 1) {
+      state.streak++;
+    } else if (diff > 1) {
+      const missed = Math.min(Math.floor(diff) - 1, 3);
+      for (let i = 0; i < missed; i++) {
+        const p = PENALTY_TYPES[i % PENALTY_TYPES.length];
+        state.penalties.push({...p, id: Date.now() + i});
+      }
+      if (missed > 0) {
+        state.xp = Math.max(0, state.xp - 100);
+        state.streak = 0;
+        state.log.push({time: new Date().toLocaleString(), msg: '[PENALTY] ' + missed + ' day(s) missed. XP penalty applied.'});
+      }
+    }
+  }
+  state.lastActive = today;
+  saveState();
+}
+
+// =============================================
+// HABITS
+// =============================================
+function addHabit() {
+  const name = document.getElementById('habit-name').value.trim();
+  const cat  = document.getElementById('habit-cat').value;
+  const xp   = parseInt(document.getElementById('habit-xp').value);
+  if (!name) { notify('ERROR', 'Quest name cannot be empty.', '#ff3355', 'rgba(255,51,85,0.1)'); return; }
+  const habit = { id: Date.now(), name, cat, xp, createdAt: todayKey() };
+  state.habits.push(habit);
+  document.getElementById('habit-name').value = '';
+  state.log.push({time: new Date().toLocaleString(), msg: 'New quest added: ' + name});
+  saveState();
+  renderQuests();
+  updateAll();
+  notify('QUEST ADDED', '[' + CATS[cat].label + '] ' + name + ' — ' + xp + ' XP', CATS[cat].color, CATS[cat].bg);
+}
+
+function toggleHabit(habitId) {
+  const today = todayKey();
+  if (!state.completions[today]) state.completions[today] = {};
+  const wasCompleted = state.completions[today][habitId];
+  const habit = state.habits.find(h => h.id === habitId);
+  if (!habit) return;
+
+  if (!wasCompleted) {
+    state.completions[today][habitId] = true;
+    state.xp      += habit.xp;
+    state.totalXP += habit.xp;
+    const existingDay = state.xpHistory.find(d => d.date === today);
+    if (existingDay) existingDay.xp += habit.xp;
+    else state.xpHistory.push({date: today, xp: habit.xp});
+    state.log.push({time: new Date().toLocaleString(), msg: 'Quest completed: ' + habit.name + ' +' + habit.xp + ' XP'});
+    notify('QUEST COMPLETE', '[' + CATS[habit.cat].label + '] ' + habit.name, CATS[habit.cat].color, CATS[habit.cat].bg, '+' + habit.xp + ' XP');
+  } else {
+    state.completions[today][habitId] = false;
+    state.xp      = Math.max(0, state.xp - habit.xp);
+    state.totalXP = Math.max(0, state.totalXP - habit.xp);
+    const existingDay = state.xpHistory.find(d => d.date === today);
+    if (existingDay) existingDay.xp = Math.max(0, existingDay.xp - habit.xp);
+    state.log.push({time: new Date().toLocaleString(), msg: 'Quest unchecked: ' + habit.name + ' -' + habit.xp + ' XP'});
+  }
+
+  // Check rank up
+  const oldRank = state.rankIndex;
+  while (state.rankIndex < RANKS.length - 1 && state.totalXP >= getRankTotalXP(state.rankIndex + 1)) {
+    state.rankIndex++;
+  }
+  if (state.rankIndex > oldRank) {
+    showLevelUp(state.rankIndex);
+    state.log.push({time: new Date().toLocaleString(), msg: 'RANK UP! Now ' + RANKS[state.rankIndex].name});
+  }
+
+  checkAllDone(today);
+  saveState();
+  renderQuests();
+  updateAll();
+}
+
+function deleteHabit(habitId) {
+  state.habits = state.habits.filter(h => h.id !== habitId);
+  state.log.push({time: new Date().toLocaleString(), msg: 'Quest removed.'});
+  saveState();
+  renderQuests();
+  updateAll();
+}
+
+function checkAllDone(today) {
+  if (state.habits.length === 0) return;
+  const comp  = state.completions[today] || {};
+  const done  = state.habits.filter(h => comp[h.id]).length;
+  if (done === state.habits.length) {
+    notify('ALL QUESTS COMPLETE', 'Perfect day! Bonus streak maintained.', '#ffd700', 'rgba(255,215,0,0.1)', '🏆 FLAWLESS');
+    state.streak = (state.streak || 0) + (state.lastActive === today ? 0 : 1);
+  }
+}
+
+// =============================================
+// XP / RANK HELPERS
+// =============================================
+function getRankTotalXP(rankIndex) {
+  let total = 0;
+  for (let i = 0; i < rankIndex; i++) total += RANKS[i].xpNeeded;
+  return total;
+}
+
+function getPlayerStats() {
+  const stats = {strength:0, agility:0, intelligence:0, vitality:0, mana:0, endurance:0};
+  state.habits.forEach(h => {
+    if (stats[h.cat] !== undefined) {
+      const daysCompleted = Object.values(state.completions).filter(d => d[h.id]).length;
+      stats[h.cat] = Math.min(100, stats[h.cat] + daysCompleted * 2);
+    }
+  });
+  return stats;
+}
+
+// =============================================
+// UPDATE UI
+// =============================================
+function updateAll() {
+  const rank  = RANKS[state.rankIndex || 0];
+  const today = todayKey();
+  const comp  = state.completions[today] || {};
+  const done  = state.habits.filter(h => comp[h.id]).length;
+
+  // Topbar
+  document.getElementById('tb-rank').textContent = rank.name;
+  document.getElementById('tb-rank').style.color = rank.color;
+  document.getElementById('tb-xp').textContent   = (state.totalXP || 0) + ' XP';
+
+  // Dashboard player card
+  document.getElementById('dash-name').textContent  = currentUser.hunterName;
+  document.getElementById('dash-title').textContent = rank.title;
+
+  const rankBase = getRankTotalXP(state.rankIndex || 0);
+  const needed   = rank.xpNeeded === Infinity ? 99999 : rank.xpNeeded;
+  const progress = rank.xpNeeded === Infinity ? 100 : Math.min(100, ((state.totalXP - rankBase) / needed) * 100);
+  document.getElementById('dash-xp-fill').style.width  = progress + '%';
+  document.getElementById('dash-xp-text').textContent  = (state.totalXP - rankBase) + ' / ' + (rank.xpNeeded === Infinity ? '∞' : rank.xpNeeded) + ' XP';
+  document.getElementById('dash-rank-badge').innerHTML = `<span style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:${rank.color};">${rank.rank}</span><span style="font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:3px;color:var(--text2);">${rank.name} HUNTER</span>`;
+  document.getElementById('dash-rank-badge').style.background = rank.color.replace(')', ',0.1)').replace('rgb', 'rgba');
+  document.getElementById('dash-rank-badge').style.border = '1px solid ' + rank.color.replace(')', ',0.3)').replace('rgb', 'rgba');
+
+  document.getElementById('dash-total-xp').textContent  = state.totalXP || 0;
+  document.getElementById('dash-streak').textContent     = state.streak  || 0;
+  document.getElementById('dash-completed').textContent  = done;
+  document.getElementById('dash-habits').textContent     = state.habits.length;
+  document.getElementById('dash-quest-count').textContent = done + '/' + state.habits.length;
+  document.getElementById('streak-big').textContent      = state.streak || 0;
+  document.getElementById('streak-flames').textContent   = (state.streak||0) >= 7 ? '🔥🔥🔥' : (state.streak||0) >= 3 ? '🔥🔥' : (state.streak||0) >= 1 ? '🔥' : '—';
+
+  // Dashboard quest preview (first 3)
+  const preview = document.getElementById('dash-quests-preview');
+  if (state.habits.length === 0) {
+    preview.innerHTML = '<div class="empty-state" style="padding:24px;"><div class="empty-state-icon">⚔</div><div class="empty-state-title">No quests yet</div><div>Add your first quest to begin.</div></div>';
+  } else {
+    preview.innerHTML = state.habits.slice(0,3).map(h => {
+      const isDone = comp[h.id];
+      const c = CATS[h.cat];
+      return `<div class="quest-item ${isDone?'completed':''}" onclick="toggleHabit(${h.id})">
+        <div class="quest-checkbox">${isDone?'✓':''}</div>
+        <div class="quest-info">
+          <div class="quest-name">${h.name}</div>
+          <div class="quest-meta">${c.emoji} ${c.label}</div>
+        </div>
+        <div class="quest-xp">+${h.xp} XP</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Ranking page
+  updateRankingPage();
+  renderPenalties();
+  renderSystemLog();
+}
+
+function updateRankingPage() {
+  const rank     = RANKS[state.rankIndex || 0];
+  const rankBase = getRankTotalXP(state.rankIndex || 0);
+  const needed   = rank.xpNeeded === Infinity ? 99999 : rank.xpNeeded;
+  const progress = rank.xpNeeded === Infinity ? 100 : Math.min(100, ((state.totalXP - rankBase) / needed) * 100);
+
+  const sym = document.getElementById('rank-symbol');
+  if (sym) {
+    sym.textContent   = rank.rank;
+    sym.style.color   = rank.color;
+    sym.style.textShadow = '0 0 60px ' + rank.glow;
+  }
+  const rn = document.getElementById('rank-name');
+  if (rn) { rn.textContent = rank.name; rn.style.color = rank.color; }
+  const rd = document.getElementById('rank-desc'); if (rd) rd.textContent = rank.title;
+  const rf = document.getElementById('rank-xp-fill'); if (rf) rf.style.width = progress + '%';
+  const rt = document.getElementById('rank-xp-text');
+  if (rt) rt.textContent = (state.totalXP - rankBase) + ' / ' + (rank.xpNeeded === Infinity ? '∞' : rank.xpNeeded);
+
+  const milestones = document.getElementById('rank-milestones');
+  if (milestones) {
+    let cumulative = 0;
+    milestones.innerHTML = RANKS.map((r,i) => {
+      const achieved = (state.rankIndex || 0) >= i;
+      cumulative += r.xpNeeded === Infinity ? 0 : r.xpNeeded;
+      return `<div class="milestone ${achieved?'achieved':''}">
+        <div class="milestone-rank" style="color:${r.color};text-shadow:0 0 10px ${r.glow};">${r.rank}</div>
+        <div class="milestone-xp">${r.xpNeeded === Infinity ? '∞' : cumulative - r.xpNeeded} XP</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// =============================================
+// QUESTS PAGE
+// =============================================
+function renderQuests() {
+  const el    = document.getElementById('quests-list');
+  const count = document.getElementById('quest-page-count');
+  if (!el) return;
+
+  const today = todayKey();
+  const comp  = state.completions[today] || {};
+  const done  = state.habits.filter(h => comp[h.id]).length;
+  if (count) count.textContent = done + '/' + state.habits.length + ' Complete';
+
+  if (state.habits.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚔</div><div class="empty-state-title">No quests assigned</div><div>Add a quest above to begin your journey.</div></div>';
+    return;
+  }
+
+  el.innerHTML = state.habits.map(h => {
+    const isDone = comp[h.id];
+    const c = CATS[h.cat];
+    return `<div class="quest-item ${isDone?'completed':''}" onclick="toggleHabit(${h.id})">
+      <div class="quest-checkbox">${isDone?'✓':''}</div>
+      <div class="quest-info">
+        <div class="quest-name">${h.name}</div>
+        <div class="quest-meta">${c.emoji} ${c.label} · ${h.createdAt}</div>
+      </div>
+      <span class="quest-cat-badge" style="background:${c.bg};border:1px solid ${c.border};color:${c.color};">${c.label.toUpperCase()}</span>
+      <div class="quest-xp">+${h.xp} XP</div>
+      <button class="btn-danger" onclick="event.stopPropagation();deleteHabit(${h.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// =============================================
+// CHARTS
+// =============================================
+function updateCharts() {
+  updateRadarChart();
+  updateXpChart();
+  updateStatDetails();
+}
+
+function updateRadarChart() {
+  const canvas = document.getElementById('radar-chart');
+  if (!canvas) return;
+  const stats  = getPlayerStats();
+  const labels = Object.keys(stats).map(k => CATS[k].label);
+  const data   = Object.values(stats);
+
+  if (radarChart) { radarChart.data.datasets[0].data = data; radarChart.update(); return; }
+  radarChart = new Chart(canvas, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Stats',
+        data,
+        backgroundColor: 'rgba(0,180,255,0.15)',
+        borderColor:     'rgba(0,180,255,0.8)',
+        pointBackgroundColor: 'rgba(0,180,255,1)',
+        pointBorderColor:     '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor:     'rgba(0,180,255,1)',
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { r: { min:0, max:100, grid:{color:'rgba(0,180,255,0.1)'}, ticks:{color:'#6a8ab0',backdropColor:'transparent',font:{size:10}}, pointLabels:{color:'#c8d8f0',font:{size:11}} }},
+      plugins: { legend:{display:false} },
+    }
+  });
+}
+
+function updateXpChart() {
+  const canvas = document.getElementById('xp-chart');
+  if (!canvas) return;
+  const last14 = [];
+  for (let i = 13; i >= 0; i--) {
+    const d   = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    const found = (state.xpHistory || []).find(x => x.date === key);
+    last14.push({label: d.toLocaleDateString('en',{month:'short',day:'numeric'}), xp: found ? found.xp : 0});
+  }
+  const labels = last14.map(d => d.label);
+  const data   = last14.map(d => d.xp);
+
+  if (xpChart) { xpChart.data.labels = labels; xpChart.data.datasets[0].data = data; xpChart.update(); return; }
+  xpChart = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [{ label:'XP Gained', data, backgroundColor:'rgba(0,180,255,0.3)', borderColor:'rgba(0,180,255,0.8)', borderWidth:1, borderRadius:2 }] },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      scales: {
+        x:{grid:{color:'rgba(0,180,255,0.05)'},ticks:{color:'#6a8ab0',font:{size:10}}},
+        y:{grid:{color:'rgba(0,180,255,0.05)'},ticks:{color:'#6a8ab0'},beginAtZero:true},
+      },
+      plugins:{legend:{display:false}},
+    }
+  });
+}
+
+function updateStatDetails() {
+  const el = document.getElementById('stat-details-grid');
+  if (!el) return;
+  const stats = getPlayerStats();
+  el.innerHTML = Object.entries(stats).map(([key,val]) => {
+    const c = CATS[key];
+    return `<div class="stat-chip" style="border-color:${c.border};background:${c.bg};">
+      <div style="font-size:24px;margin-bottom:4px;">${c.emoji}</div>
+      <div class="stat-chip-value" style="color:${c.color};text-shadow:0 0 10px ${c.color}40;">${val}</div>
+      <div class="stat-chip-label">${c.label}</div>
+      <div style="margin-top:8px;height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;">
+        <div style="width:${val}%;height:100%;background:${c.color};transition:width 1s;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =============================================
+// PENALTIES
+// =============================================
+function renderPenalties() {
+  const el = document.getElementById('penalty-list');
+  if (!el) return;
+  if ((state.penalties || []).length === 0) {
+    el.innerHTML = '<div class="empty-state" style="padding:16px;"><div style="font-size:13px;color:var(--green);">No penalties active. Well done, Hunter.</div></div>';
+    return;
+  }
+  el.innerHTML = state.penalties.map((p,i) => `
+    <div class="penalty-item">
+      <div class="penalty-icon">⚠</div>
+      <div style="flex:1;">
+        <div style="font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2px;color:var(--red);margin-bottom:2px;">${p.title}</div>
+        <div style="font-size:13px;">${p.desc}</div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red);">-${p.xpCost} XP</div>
+      <button class="btn-danger" onclick="clearPenalty(${i})">CLEAR</button>
+    </div>`).join('');
+}
+
+function clearPenalty(i) { state.penalties.splice(i,1); saveState(); renderPenalties(); }
+
+// =============================================
+// SYSTEM LOG
+// =============================================
+function renderSystemLog() {
+  const el = document.getElementById('system-log');
+  if (!el) return;
+  if ((state.log || []).length === 0) {
+    el.innerHTML = '<div class="empty-state" style="padding:16px;"><div style="font-size:13px;">System log is empty.</div></div>';
+    return;
+  }
+  el.innerHTML = [...state.log].reverse().slice(0,50).map(entry => `
+    <div style="padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px;display:flex;gap:12px;">
+      <span style="color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:11px;white-space:nowrap;">${entry.time}</span>
+      <span>${entry.msg}</span>
+    </div>`).join('');
+}
+
+// =============================================
+// CALENDAR
+// =============================================
+function renderCalendar() {
+  const monthNames = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+  const days  = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const el    = document.getElementById('cal-days');
+  const hdrEl = document.getElementById('cal-headers');
+  const lblEl = document.getElementById('cal-month-label');
+  if (!el||!hdrEl||!lblEl) return;
+
+  lblEl.textContent  = monthNames[calMonth] + ' ' + calYear;
+  hdrEl.innerHTML    = days.map(d=>`<div class="cal-header">${d}</div>`).join('');
+
+  const first       = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const todayStr    = todayKey();
+  const today       = new Date();
+
+  let html = '';
+  for (let i = 0; i < first; i++) html += `<div class="cal-day empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr  = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const cellDate = new Date(calYear, calMonth, d);
+    const isToday  = dateStr === todayStr;
+    const isFuture = cellDate > today;
+    let cls = '';
+    if (isFuture) cls = 'future';
+    else if (isToday) cls = 'today';
+    else {
+      const comp = state.completions[dateStr] || {};
+      if (state.habits.length > 0) {
+        const done = state.habits.filter(h => comp[h.id]).length;
+        if (done === state.habits.length && done > 0) cls = 'perfect';
+        else if (done > 0)  cls = 'partial';
+        else                cls = 'missed';
+      }
+    }
+    html += `<div class="cal-day ${cls}">${d}</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function changeMonth(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+// =============================================
+// NOTIFICATIONS
+// =============================================
+function notify(title, body, color='#00b4ff', bg='rgba(0,180,255,0.1)', xpText='') {
+  const area  = document.getElementById('notif-area');
+  const notif = document.createElement('div');
+  notif.className = 'notification glass2';
+  notif.style.cssText = `background:${bg};border:1px solid ${color}40;`;
+  notif.innerHTML = `
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${color};"></div>
+    <div class="notif-title" style="color:${color};">[ SYSTEM ] ${title}</div>
+    <div class="notif-body">${body}</div>
+    ${xpText ? `<div class="notif-xp" style="color:${color};">${xpText}</div>` : ''}`;
+  area.appendChild(notif);
+  setTimeout(() => { notif.style.opacity='0'; notif.style.transition='opacity 0.5s'; setTimeout(()=>notif.remove(),500); }, 3500);
+}
+
+// =============================================
+// LEVEL UP
+// =============================================
+function showLevelUp(rankIndex) {
+  const rank = RANKS[rankIndex];
+  document.getElementById('lu-rank').textContent  = rank.rank;
+  document.getElementById('lu-rank').style.color  = rank.color;
+  document.getElementById('lu-rank').style.textShadow = '0 0 60px ' + rank.glow;
+  document.getElementById('lu-desc').textContent  = rank.title;
+  document.getElementById('levelup-overlay').classList.remove('hidden');
+}
+function closeLevelUp() { document.getElementById('levelup-overlay').classList.add('hidden'); }
+
+// =============================================
+// NAVIGATION
+// =============================================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const pages    = ['dashboard','quests','stats','ranking','calendar'];
+  const navItems = document.querySelectorAll('.nav-item');
+  pages.forEach((p,i) => {
+    if (p === page) { document.getElementById('page-'+p).classList.add('active'); navItems[i].classList.add('active'); }
+  });
+  if (page==='quests')   renderQuests();
+  if (page==='calendar') renderCalendar();
+  if (page==='stats')    setTimeout(updateCharts, 100);
+  if (page==='ranking')  updateAll();
+}
+
+// =============================================
+// KEYBOARD SHORTCUTS
+// =============================================
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const authScreen = document.getElementById('auth-screen');
+    if (!authScreen.classList.contains('hidden')) {
+      const loginForm = document.getElementById('login-form');
+      if (!loginForm.classList.contains('hidden')) login();
+      else signup();
+    }
+  }
+});
+
+// =============================================
+// INIT — Try to restore session on page load
+// =============================================
+(async function init() {
+  const loadingScreen = document.getElementById('loading-screen');
+  const token = localStorage.getItem('system_token');
+
+  if (token) {
+    authToken = token;
+    try {
+      // Verify token with server
+      const { user } = await apiCall('/auth/me');
+      currentUser = user;
+      // Load game state
+      state = await apiCall('/data');
+      checkStreak();
+      loadingScreen.classList.add('hidden');
+      enterSystem();
+      return;
+    } catch (err) {
+      // Token invalid/expired — clear it
+      authToken = null;
+      localStorage.removeItem('system_token');
+    }
+  }
+
+  // Show auth screen
+  loadingScreen.classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+})();
+
+// Save on page close
+window.addEventListener('beforeunload', () => {
+  if (currentUser && saveTimeout) {
+    clearTimeout(saveTimeout);
+    navigator.sendBeacon(API_BASE + '/data', JSON.stringify(state));
+  }
+});
+</script>
+</body>
+</html>
