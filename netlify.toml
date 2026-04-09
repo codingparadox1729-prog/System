@@ -1,0 +1,11 @@
+[build]
+  # Tell Netlify where your frontend files are
+  base = "frontend"
+  # This is the folder Netlify will actually host (usually same as base if no build step)
+  publish = "."
+
+[[redirects]]
+  # This fixes the "Page Not Found" if you refresh the page
+  from = "/*"
+  to = "/index.html"
+  status = 200
